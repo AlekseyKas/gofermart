@@ -12,25 +12,25 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"go.gofermart/cmd/server/handlers"
+	"go.gofermart/cmd/server/storage"
 	"go.gofermart/internal/config"
 )
 
 func main() {
 	wg := &sync.WaitGroup{}
-	_, cancel := context.WithCancel(context.Background())
-
-	//load env vars
-	env, err := config.LoadConfig()
+	ctx, cancel := context.WithCancel(context.Background())
+	args, err := config.TerminateFlags()
 	if err != nil {
-		logrus.Error("Error parse env: ", err)
+		logrus.Error("Error setting args: ", err)
 	}
+	storage.IDB = &storage.DB
+	storage.IDB.InitDB(ctx, args.DatabaseURL)
 	wg.Add(1)
-	//wait signal SIGTERM
 	go waitSignals(cancel, wg)
 
 	r := chi.NewRouter()
 	r.Route("/", handlers.Router)
-	go http.ListenAndServe(env.Address, r)
+	go http.ListenAndServe(args.Address, r)
 
 	wg.Wait()
 }
