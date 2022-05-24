@@ -41,13 +41,13 @@ func Router(r chi.Router) {
 
 func register() http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
+		defer req.Body.Close()
 
 		if !strings.Contains(req.Header.Get("Content-Type"), "application/json") {
 			rw.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		defer req.Body.Close()
 		out, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			logrus.Error("Error read body: ", err)
@@ -81,9 +81,31 @@ func register() http.HandlerFunc {
 	}
 }
 
+//login users
 func login() http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		defer req.Body.Close()
+		if !strings.Contains(req.Header.Get("Content-Type"), "application/json") {
+			rw.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		out, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			logrus.Error("Error read body: ", err)
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		u := storage.Users
+		err = json.Unmarshal(out, &u)
+		if err != nil {
+			logrus.Error("Error unmarshal body: ", err)
+			rw.WriteHeader(http.StatusBadRequest)
+		}
+		if u.Login == "" || u.Password == "" {
+			logrus.Error("Wrong format of user or password.")
+			rw.WriteHeader(http.StatusBadRequest)
+		}
+		// err := storage.DB.AuthUser(u)
 
 	}
 }
