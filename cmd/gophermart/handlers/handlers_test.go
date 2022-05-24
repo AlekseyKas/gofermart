@@ -142,20 +142,20 @@ func Test_login(t *testing.T) {
 		},
 		{
 			name:        "wrong type#1",
-			body:        []byte(`{"loginn": "user1", "sword": "password"}`),
+			body:        []byte(`{"loginn": "user1111", "sword": "password"}`),
 			method:      "POST",
-			url:         "/api/user/register",
+			url:         "/api/user/login",
 			contentType: "application/json",
 			want: want{
 				contentType: "application/json",
-				statusCode:  400,
+				statusCode:  401,
 			},
 		},
 		{
 			name:        "wrong type#2",
 			body:        []byte(`{"login": "user1", "password": "password"}`),
 			method:      "POST",
-			url:         "/api/user/register",
+			url:         "/api/user/login",
 			contentType: "plain/txt",
 			want: want{
 				contentType: "application/json",

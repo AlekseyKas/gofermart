@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"go.gofermart/cmd/server/storage"
+	"go.gofermart/cmd/gophermart/storage"
 )
 
 func CheckCookie(next http.Handler) http.Handler {

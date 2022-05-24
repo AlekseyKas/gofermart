@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"go.gofermart/cmd/server/database"
-	"go.gofermart/cmd/server/storage/migrations"
+	"go.gofermart/cmd/gophermart/database"
+	"go.gofermart/cmd/gophermart/storage/migrations"
 	"go.gofermart/internal/config/migrate"
 	"golang.org/x/crypto/bcrypt"
 
@@ -50,7 +50,10 @@ func (d *Database) GetUser(u User) (string, error) {
 	var login string
 	var password string
 	row := d.Con.QueryRow(d.Ctx, "SELECT * FROM users WHERE login = $1", u.Login)
-	row.Scan(&login, &password)
+	err := row.Scan(&login, &password)
+	if err != nil {
+		d.Loger.Error("Error scan row: ", err)
+	}
 	valhash := hmac.New(sha256.New, []byte(login+password))
 	hh := fmt.Sprintf("%x", valhash.Sum(nil))
 	return hh, nil
@@ -116,20 +119,20 @@ func (d *Database) CreateUser(u User) (cookie Cookie, err error) {
 	}
 }
 
-func (d *Database) ReconnectDB() error {
-	var err error
-	for i := 0; i < 5; i++ {
-		select {
-		case <-d.Ctx.Done():
-			return nil
-		case <-time.After(2 * time.Second):
-			DB.Con, err = database.Connect(d.Ctx, d.DBURL, d.Loger)
-			if err != nil {
-				d.Loger.Error("Error conncet to DB: ", err)
-			} else {
-				return nil
-			}
-		}
-	}
-	return err
-}
+// func (d *Database) ReconnectDB() error {
+// 	var err error
+// 	for i := 0; i < 5; i++ {
+// 		select {
+// 		case <-d.Ctx.Done():
+// 			return nil
+// 		case <-time.After(2 * time.Second):
+// 			DB.Con, err = database.Connect(d.Ctx, d.DBURL, d.Loger)
+// 			if err != nil {
+// 				d.Loger.Error("Error conncet to DB: ", err)
+// 			} else {
+// 				return nil
+// 			}
+// 		}
+// 	}
+// 	return err
+// }
