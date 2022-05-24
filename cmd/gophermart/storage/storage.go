@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"go.gofermart/cmd/server/database"
-	"go.gofermart/cmd/server/storage/migrations"
+	"go.gofermart/cmd/gophermart/database"
+	"go.gofermart/cmd/gophermart/storage/migrations"
 	"go.gofermart/internal/config/migrate"
 	"golang.org/x/crypto/bcrypt"
 
